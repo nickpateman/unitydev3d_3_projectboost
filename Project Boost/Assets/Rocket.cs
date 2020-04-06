@@ -37,6 +37,9 @@ public class Rocket : MonoBehaviour
             case "Friendly":
                 Debug.Log("OK!");
                 break;
+            case "Fuel":
+                Debug.Log("Fuel!");
+                break;
             default:
                 Debug.Log("Dead!");
                 break;
