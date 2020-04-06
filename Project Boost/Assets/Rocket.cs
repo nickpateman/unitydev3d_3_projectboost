@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour
 {
+    [SerializeField] float RotationSpeed = 100f;
+    [SerializeField] float ThrustSpeed = 200f;
+
     private Rigidbody _rigidBody;
     private AudioSource _audioSource;
     private bool _applyThrust;
@@ -27,6 +30,19 @@ public class Rocket : MonoBehaviour
         ProcessInput();
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        switch(collision.gameObject.tag)
+        {
+            case "Friendly":
+                Debug.Log("OK!");
+                break;
+            default:
+                Debug.Log("Dead!");
+                break;
+        }
+    }
+
     private void ProcessInput()
     {
         ApplyThrust();        
@@ -38,7 +54,8 @@ public class Rocket : MonoBehaviour
         _applyThrust = Input.GetKey(KeyCode.Space);
         if (_applyThrust)
         {
-            _rigidBody.AddRelativeForce(Vector3.up);
+            float thrustSpeed = ThrustSpeed * Time.deltaTime;
+            _rigidBody.AddRelativeForce(Vector3.up * thrustSpeed);
             if (!_audioSource.isPlaying)
             {
                 _audioSource.Play();
@@ -60,13 +77,14 @@ public class Rocket : MonoBehaviour
             var rotateRight = Input.GetKey(KeyCode.D);
             if (_applyThrust && !(rotateLeft && rotateRight))
             {
+                float rotationSpeed = RotationSpeed * Time.deltaTime;
                 if (rotateLeft)
                 {
-                    transform.Rotate(Vector3.forward);
+                    transform.Rotate(Vector3.forward * rotationSpeed);
                 }
                 else if (rotateRight)
                 {
-                    transform.Rotate(-Vector3.forward);
+                    transform.Rotate(-Vector3.forward * rotationSpeed);
                 }
             }
         }
