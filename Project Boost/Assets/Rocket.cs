@@ -4,13 +4,20 @@ using UnityEngine;
 public class Rocket : MonoBehaviour
 {
     private Rigidbody _rigidBody;
+    private AudioSource _audioSource;
 
     void Start()
     {
         _rigidBody = GetComponent<Rigidbody>();
         if(_rigidBody == null)
+        {            
+            throw new InvalidOperationException($"'{transform.parent.name}' does not have a rigid body component.");
+        }
+
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
         {
-            throw new InvalidOperationException($"Parent of '{name}' does not have a rigid body component.");
+            throw new InvalidOperationException($"'{transform.parent.name}' does not have a audio source component.");
         }
     }
 
@@ -25,6 +32,14 @@ public class Rocket : MonoBehaviour
         if (thrust)
         {
             _rigidBody.AddRelativeForce(Vector3.up);
+            if (!_audioSource.isPlaying)
+            {
+                _audioSource.Play();
+            }
+        }
+        else
+        {
+            _audioSource.Stop();
         }
 
         var rotateLeft = Input.GetKey(KeyCode.A);
