@@ -6,6 +6,9 @@ public class Rocket : MonoBehaviour
 {
     [SerializeField] float RotationSpeed = 100f;
     [SerializeField] float ThrustSpeed = 200f;
+    [SerializeField] AudioClip MainEngine;
+    [SerializeField] AudioClip DeathSound;
+    [SerializeField] AudioClip WinSound;
 
     private Rigidbody _rigidBody;
     private AudioSource _audioSource;
@@ -13,6 +16,7 @@ public class Rocket : MonoBehaviour
     private Collision _curCollision;
     private LandingPad _curLandingPad;
     private DateTime _startedLanding;
+    private bool _ignoreInput;
 
     void Start()
     {
@@ -31,9 +35,12 @@ public class Rocket : MonoBehaviour
 
     void Update()
     {
-        ProcessInput();
-        ProcessCollision();
-        ProcessLanding();
+        if(!_ignoreInput)
+        {
+            ProcessInput();
+            ProcessCollision();
+            ProcessLanding();
+        }
     }
 
     void OnCollisionEnter(Collision collision)
@@ -58,18 +65,35 @@ public class Rocket : MonoBehaviour
             var elapsed = DateTime.Now - _startedLanding;
             if(elapsed > new TimeSpan(0, 0, 3))
             {
-                var nextScene = SceneManager.GetActiveScene().buildIndex;
-                if (SceneManager.GetActiveScene().buildIndex < (SceneManager.sceneCountInBuildSettings - 1))
-                {
-                    nextScene += 1;
-                }
-                else
-                {
-                    nextScene = 0;
-                }
-                SceneManager.LoadScene(nextScene);
+                _ignoreInput = true;
+                _audioSource.PlayOneShot(WinSound);
+                Invoke(nameof(NextScene), 3.0f);
             }
         }
+    }
+
+    private void NextScene()
+    {
+        var nextScene = SceneManager.GetActiveScene().buildIndex;
+        if (SceneManager.GetActiveScene().buildIndex < (SceneManager.sceneCountInBuildSettings - 1))
+        {
+            nextScene += 1;
+        }
+        else
+        {
+            nextScene = 0;
+        }
+        SceneManager.LoadScene(nextScene);
+    }
+
+    private void PrevScene()
+    {
+        var prevScene = SceneManager.GetActiveScene().buildIndex;
+        if (prevScene > 0)
+        {
+            prevScene -= 1;
+        }
+        SceneManager.LoadScene(prevScene);
     }
 
     private void ProcessCollision()
@@ -78,6 +102,9 @@ public class Rocket : MonoBehaviour
         {
             switch (_curCollision.gameObject.tag)
             {
+                case "Launching":
+                    // do nothing
+                    break;
                 case "Fuel":
                     // refuel
                     break;
@@ -98,7 +125,10 @@ public class Rocket : MonoBehaviour
                     }
                     break;
                 default:
-                    Debug.Log("Dying! @" + Environment.TickCount);
+                    _ignoreInput = true;
+                    _audioSource.Stop();
+                    _audioSource.PlayOneShot(DeathSound);
+                    Invoke(nameof(PrevScene), 3.0f);
                     break;
             }
         }
@@ -130,7 +160,7 @@ public class Rocket : MonoBehaviour
             _rigidBody.AddRelativeForce(Vector3.up * thrustSpeed);
             if (!_audioSource.isPlaying)
             {
-                _audioSource.Play();
+                _audioSource.PlayOneShot(MainEngine);
             }
         }
         else
