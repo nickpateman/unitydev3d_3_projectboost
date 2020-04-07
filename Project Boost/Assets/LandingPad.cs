@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class LandingPad : MonoBehaviour
 {
+    public string Key;
     public bool Engaged;
     private Light[] _lights;
 

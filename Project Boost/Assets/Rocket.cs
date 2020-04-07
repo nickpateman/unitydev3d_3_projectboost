@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Rocket : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class Rocket : MonoBehaviour
     private AudioSource _audioSource;
     private bool _applyThrust;
     private Collision _curCollision;
+    private LandingPad _curLandingPad;
+    private DateTime _startedLanding;
 
     void Start()
     {
@@ -30,6 +33,7 @@ public class Rocket : MonoBehaviour
     {
         ProcessInput();
         ProcessCollision();
+        ProcessLanding();
     }
 
     void OnCollisionEnter(Collision collision)
@@ -39,20 +43,33 @@ public class Rocket : MonoBehaviour
 
     void OnCollisionExit(Collision collision)
     {
-        if (_curCollision != null)
+        if (_curLandingPad != null)
         {
-            switch (_curCollision.gameObject.tag)
-            {
-                case "Fuel":
-                    
-                    break;
-                case "Landing":
-                    var landingPad = _curCollision.gameObject.GetComponent<LandingPad>();
-                    if (landingPad != null) landingPad.Engaged = false;
-                    break;
-            }
+            _curLandingPad.Engaged = false;
+            _curLandingPad = null;
         }
         _curCollision = null;
+    }
+
+    private void ProcessLanding()
+    {
+        if(_curLandingPad != null)
+        {
+            var elapsed = DateTime.Now - _startedLanding;
+            if(elapsed > new TimeSpan(0, 0, 3))
+            {
+                var nextScene = SceneManager.GetActiveScene().buildIndex;
+                if (SceneManager.GetActiveScene().buildIndex < (SceneManager.sceneCountInBuildSettings - 1))
+                {
+                    nextScene += 1;
+                }
+                else
+                {
+                    nextScene = 0;
+                }
+                SceneManager.LoadScene(nextScene);
+            }
+        }
     }
 
     private void ProcessCollision()
@@ -65,8 +82,20 @@ public class Rocket : MonoBehaviour
                     // refuel
                     break;
                 case "Landing":
-                    var landingPad = _curCollision.gameObject.GetComponent<LandingPad>();
-                    if (landingPad != null) landingPad.Engaged = IsOrientedInSimilarDirection(_curCollision.transform, 10.0f);
+                    var curLandingPad = _curCollision.gameObject.GetComponent<LandingPad>();
+                    if (curLandingPad != null)
+                    {
+                        curLandingPad.Engaged = IsOrientedInSimilarDirection(_curCollision.transform, 10.0f);
+                        if(curLandingPad.Engaged && _curLandingPad == null)
+                        {
+                            _startedLanding = DateTime.Now;
+                            _curLandingPad = curLandingPad;
+                        }
+                        else if(!curLandingPad.Engaged)
+                        {
+                            _curLandingPad = null;
+                        }
+                    }
                     break;
                 default:
                     Debug.Log("Dying! @" + Environment.TickCount);
