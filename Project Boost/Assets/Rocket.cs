@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,6 +18,8 @@ public class Rocket : MonoBehaviour
     private LandingPad _curLandingPad;
     private DateTime _startedLanding;
     private bool _ignoreInput;
+    private ParticleSystem _boosterParticles;
+    private ParticleSystem _explosionParticles;
 
     void Start()
     {
@@ -30,6 +33,18 @@ public class Rocket : MonoBehaviour
         if (_audioSource == null)
         {
             throw new InvalidOperationException($"'{transform.parent.name}' does not have a audio source component.");
+        }
+
+        _boosterParticles = GetComponentsInChildren<ParticleSystem>().FirstOrDefault(x => x.name == "BoosterParticles");
+        if (_boosterParticles == null)
+        {
+            throw new InvalidOperationException($"'{transform.parent.name}' does not have a booster particle system.");
+        }
+
+        _explosionParticles = GetComponentsInChildren<ParticleSystem>().FirstOrDefault(x => x.name == "ExplosionParticles");
+        if (_explosionParticles == null)
+        {
+            throw new InvalidOperationException($"'{transform.parent.name}' does not have a explosion particle system.");
         }
     }
 
@@ -139,7 +154,9 @@ public class Rocket : MonoBehaviour
     private void DoDie()
     {
         _ignoreInput = true;
+        _boosterParticles.Stop();
         _audioSource.Stop();
+        _explosionParticles.Play();
         _audioSource.PlayOneShot(DeathSound);
         Invoke(nameof(PrevScene), 3.0f);
     }
@@ -172,10 +189,15 @@ public class Rocket : MonoBehaviour
             {
                 _audioSource.PlayOneShot(MainEngine);
             }
+            if(!_boosterParticles.isPlaying)
+            {
+                _boosterParticles.Play();
+            }
         }
         else
         {
             _audioSource.Stop();
+            _boosterParticles.Stop();
         }
     }
 
