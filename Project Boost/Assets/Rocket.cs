@@ -109,29 +109,39 @@ public class Rocket : MonoBehaviour
                     // refuel
                     break;
                 case "Landing":
-                    var curLandingPad = _curCollision.gameObject.GetComponent<LandingPad>();
-                    if (curLandingPad != null)
-                    {
-                        curLandingPad.Engaged = IsOrientedInSimilarDirection(_curCollision.transform, 10.0f);
-                        if(curLandingPad.Engaged && _curLandingPad == null)
-                        {
-                            _startedLanding = DateTime.Now;
-                            _curLandingPad = curLandingPad;
-                        }
-                        else if(!curLandingPad.Engaged)
-                        {
-                            _curLandingPad = null;
-                        }
-                    }
+                    DoLanding();
                     break;
                 default:
-                    _ignoreInput = true;
-                    _audioSource.Stop();
-                    _audioSource.PlayOneShot(DeathSound);
-                    Invoke(nameof(PrevScene), 3.0f);
+                    DoDie();
                     break;
             }
         }
+    }
+
+    private void DoLanding()
+    {
+        var curLandingPad = _curCollision.gameObject.GetComponent<LandingPad>();
+        if (curLandingPad != null)
+        {
+            curLandingPad.Engaged = IsOrientedInSimilarDirection(_curCollision.transform, 10.0f);
+            if (curLandingPad.Engaged && _curLandingPad == null)
+            {
+                _startedLanding = DateTime.Now;
+                _curLandingPad = curLandingPad;
+            }
+            else if (!curLandingPad.Engaged)
+            {
+                _curLandingPad = null;
+            }
+        }
+    }    
+
+    private void DoDie()
+    {
+        _ignoreInput = true;
+        _audioSource.Stop();
+        _audioSource.PlayOneShot(DeathSound);
+        Invoke(nameof(PrevScene), 3.0f);
     }
 
     private bool IsOrientedInSimilarDirection(
