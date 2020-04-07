@@ -9,6 +9,7 @@ public class Rocket : MonoBehaviour
     private Rigidbody _rigidBody;
     private AudioSource _audioSource;
     private bool _applyThrust;
+    private Collision _curCollision;
 
     void Start()
     {
@@ -28,22 +29,61 @@ public class Rocket : MonoBehaviour
     void Update()
     {
         ProcessInput();
+        ProcessCollision();
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        switch(collision.gameObject.tag)
+        _curCollision = collision;
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (_curCollision != null)
         {
-            case "Friendly":
-                Debug.Log("OK!");
-                break;
-            case "Fuel":
-                Debug.Log("Fuel!");
-                break;
-            default:
-                Debug.Log("Dead!");
-                break;
+            switch (_curCollision.gameObject.tag)
+            {
+                case "Fuel":
+                    
+                    break;
+                case "Landing":
+                    var landingPad = _curCollision.gameObject.GetComponent<LandingPad>();
+                    if (landingPad != null) landingPad.Engaged = false;
+                    break;
+            }
         }
+        _curCollision = null;
+    }
+
+    private void ProcessCollision()
+    {
+        if(_curCollision != null)
+        {
+            switch (_curCollision.gameObject.tag)
+            {
+                case "Fuel":
+                    // refuel
+                    break;
+                case "Landing":
+                    var landingPad = _curCollision.gameObject.GetComponent<LandingPad>();
+                    if (landingPad != null) landingPad.Engaged = IsOrientedInSimilarDirection(_curCollision.transform, 10.0f);
+                    break;
+                default:
+                    Debug.Log("Dying! @" + Environment.TickCount);
+                    break;
+            }
+        }
+    }
+
+    private bool IsOrientedInSimilarDirection(
+        Transform compareTransform,
+        float allowance)
+    {
+        var landingBlockDirection = compareTransform.rotation.eulerAngles.z;
+        var rocketDirection = transform.rotation.eulerAngles.z;
+        var difference = rocketDirection - landingBlockDirection;
+        if (difference < 0) difference = -difference;
+        return difference <= allowance;
     }
 
     private void ProcessInput()
