@@ -224,28 +224,21 @@ public class Rocket : MonoBehaviour
 
     private void ApplyRotation()
     {
-        try
-        {
-            _rigidBody.freezeRotation = true;
+        _rigidBody.angularVelocity = Vector3.zero;
 
-            var rotateLeft = Input.GetKey(KeyCode.A);
-            var rotateRight = Input.GetKey(KeyCode.D);
-            if (_applyThrust && !(rotateLeft && rotateRight))
-            {
-                float rotationSpeed = RotationSpeed * Time.deltaTime;
-                if (rotateLeft)
-                {
-                    transform.Rotate(Vector3.forward * rotationSpeed);
-                }
-                else if (rotateRight)
-                {
-                    transform.Rotate(-Vector3.forward * rotationSpeed);
-                }
-            }
-        }
-        finally
+        var rotateLeft = Input.GetKey(KeyCode.A);
+        var rotateRight = Input.GetKey(KeyCode.D);
+        if (_applyThrust && !(rotateLeft && rotateRight))
         {
-            _rigidBody.freezeRotation = false;
+            float rotationSpeed = RotationSpeed * Time.deltaTime;
+            if (rotateLeft)
+            {
+                transform.Rotate(Vector3.forward * rotationSpeed);
+            }
+            else if (rotateRight)
+            {
+                transform.Rotate(-Vector3.forward * rotationSpeed);
+            }
         }
     }
 }
