@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7387782225917222598}
   - component: {fileID: 7152793827439563693}
   m_Layer: 0
-  m_Name: Sphere (1)
+  m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 868617652365348929}
   - component: {fileID: 2847944546262613732}
   m_Layer: 0
-  m_Name: Sphere (2)
+  m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -390,6 +390,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a166286cc9f88b74d9b8f7ced69f01ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Key: 
+  Engaged: 0
 --- !u!1 &3357583350402641580
 GameObject:
   m_ObjectHideFlags: 0
@@ -587,7 +589,7 @@ GameObject:
   - component: {fileID: 102100233002694272}
   - component: {fileID: 8002957716395664209}
   m_Layer: 0
-  m_Name: Sphere (3)
+  m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -681,7 +683,7 @@ GameObject:
   - component: {fileID: 6035018552872813669}
   - component: {fileID: 3092005686966443256}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
