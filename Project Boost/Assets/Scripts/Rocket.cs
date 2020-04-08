@@ -10,6 +10,7 @@ public class Rocket : MonoBehaviour
     [SerializeField] AudioClip MainEngine;
     [SerializeField] AudioClip DeathSound;
     [SerializeField] AudioClip WinSound;
+    [SerializeField] bool EnableCollisions = true;
 
     private Rigidbody _rigidBody;
     private AudioSource _audioSource;
@@ -127,7 +128,10 @@ public class Rocket : MonoBehaviour
                     DoLanding();
                     break;
                 default:
-                    DoDie();
+                    if(EnableCollisions)
+                    {
+                        DoDie();
+                    }
                     break;
             }
         }
@@ -174,8 +178,25 @@ public class Rocket : MonoBehaviour
 
     private void ProcessInput()
     {
+        ApplyOptions();
         ApplyThrust();        
         ApplyRotation();
+    }
+
+    private void ApplyOptions()
+    {
+        if(Debug.isDebugBuild)
+        {
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                NextScene();
+            }
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                EnableCollisions = !EnableCollisions;
+            }
+        }
     }
 
     private void ApplyThrust()
